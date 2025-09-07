@@ -1,0 +1,758 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LawHub - Integrated Legal Platform</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { background-color: #1a1a1a; color: #ffffff; font-family: 'Inter', sans-serif; }
+        .sidebar { background-color: #000000; }
+        .card { background-color: #2c2c2c; }
+        .btn-primary { background-color: #FF9900; color: #000000; font-weight: 700; }
+        .btn-secondary { background-color: #2c2c2c; color: #ffffff; }
+        .chat-bubble-user { background-color: #FF9900; color: #000000; }
+        .chat-bubble-bot { background-color: #2c2c2c; }
+        .nav-item { color: #a0a0a0; transition: all 0.2s ease-in-out; }
+        .nav-item:hover, .nav-item.active { background-color: #2c2c2c; color: #FF9900; border-left: 3px solid #FF9900; }
+        .nav-item.active { font-weight: 600; }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <nav class="sidebar w-64 flex-shrink-0 p-4 flex flex-col">
+            <div class="flex items-center mb-8">
+                <span class="text-xl font-bold text-white">LawHub</span>
+            </div>
+            <ul class="space-y-2 flex-grow">
+                <li><a href="#" class="nav-item active flex items-center p-3 rounded-lg" data-target="dashboard-view">
+                    <span class="mr-3">🏠</span> Dashboard
+                </a></li>
+                <li><a href="#" class="nav-item flex items-center p-3 rounded-lg" data-target="chat-view">
+                    <span class="mr-3">💬</span> Legal Q&A
+                </a></li>
+                <li><a href="#" class="nav-item flex items-center p-3 rounded-lg" data-target="laws-view">
+                    <span class="mr-3">📚</span> Laws Explorer
+                </a></li>
+                <li><a href="#" class="nav-item flex items-center p-3 rounded-lg" data-target="ocr-view">
+                    <span class="mr-3">📄</span> Document Analysis
+                </a></li>
+                <li><a href="#" class="nav-item flex items-center p-3 rounded-lg" data-target="emergency-view">
+                    <span class="mr-3">🚨</span> Emergency Help
+                </a></li>
+            </ul>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6 overflow-y-auto">
+            
+            <!-- Dashboard View -->
+            <div id="dashboard-view" class="view-content">
+                <h1 class="text-3xl font-bold mb-2">Welcome to LawHub</h1>
+                <p class="text-lg text-gray-400 mb-8">Your integrated legal companion with AI-powered assistance.</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="card p-6 rounded-xl cursor-pointer" data-target="chat-view">
+                        <div class="text-4xl mb-4">💬</div>
+                        <h3 class="text-xl font-bold mb-2">Ask Legal Questions</h3>
+                        <p class="text-gray-400">Get instant answers from our AI-powered legal assistant.</p>
+                    </div>
+                    <div class="card p-6 rounded-xl cursor-pointer" data-target="laws-view">
+                        <div class="text-4xl mb-4">📚</div>
+                        <h3 class="text-xl font-bold mb-2">Explore Laws</h3>
+                        <p class="text-gray-400">Search through comprehensive legal databases.</p>
+                    </div>
+                    <div class="card p-6 rounded-xl cursor-pointer" data-target="ocr-view">
+                        <div class="text-4xl mb-4">📄</div>
+                        <h3 class="text-xl font-bold mb-2">Document Analysis</h3>
+                        <p class="text-gray-400">Upload and analyze legal documents.</p>
+                    </div>
+                    <div class="card p-6 rounded-xl cursor-pointer" data-target="emergency-view">
+                        <div class="text-4xl mb-4">🚨</div>
+                        <h3 class="text-xl font-bold mb-2">Emergency Help</h3>
+                        <p class="text-gray-400">Get immediate legal assistance.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Legal Q&A View -->
+            <div id="chat-view" class="view-content hidden h-full flex flex-col">
+                <h1 class="text-3xl font-bold mb-2">Legal Q&A Chatbot</h1>
+                <p class="text-lg text-gray-400 mb-4">Ask any legal question and get answers from our comprehensive legal database.</p>
+                <div id="chat-window" class="flex-1 bg-black/20 rounded-xl p-4 overflow-y-auto mb-4 space-y-4">
+                    <div class="flex justify-start">
+                        <div class="chat-bubble-bot p-3 rounded-lg max-w-lg">
+                            Hello! I am your AI legal assistant. How can I help you today?
+                        </div>
+                    </div>
+                </div>
+                <div id="chat-status" class="text-center text-sm text-gray-400 h-5 mb-2"></div>
+                <div class="flex items-center space-x-2">
+                    <input type="text" id="chat-input" class="bg-gray-800 border border-gray-600 text-white flex-1 p-3 rounded-lg" placeholder="Type your question here...">
+                    <button id="send-btn" class="btn-primary p-3 rounded-lg">Send</button>
+                    <button id="legal-qa-btn" class="btn-secondary p-3 rounded-lg" title="Use Legal QA datasets">📋 Legal QA</button>
+                    <button id="deepseek-btn" class="btn-secondary p-3 rounded-lg" title="Get AI Legal Advice from DeepSeek">🤖 DeepSeek AI</button>
+                </div>
+            </div>
+
+            <!-- Laws Explorer View -->
+            <div id="laws-view" class="view-content hidden">
+                <h1 class="text-3xl font-bold mb-2">Laws Explorer</h1>
+                <p class="text-lg text-gray-400 mb-8">Search through legal databases from multiple jurisdictions.</p>
+                
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div>
+                        <h2 class="text-2xl font-bold mb-4">Search Laws</h2>
+                        <div class="space-y-4">
+                            <input type="text" id="laws-search" class="bg-gray-800 border border-gray-600 text-white w-full p-3 rounded-lg" placeholder="Search for laws, regulations, or legal concepts...">
+                            <button id="search-laws-btn" class="btn-primary px-6 py-3 rounded-lg">Search</button>
+                        </div>
+                        <div id="laws-results" class="mt-6 space-y-4">
+                            <!-- Search results will appear here -->
+                        </div>
+                    </div>
+                    <div>
+                        <h2 class="text-2xl font-bold mb-4">Available Jurisdictions</h2>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="card p-4 rounded-lg">
+                                <h3 class="font-semibold mb-2">🇺🇸 United States</h3>
+                                <p class="text-sm text-gray-400">Supreme Court cases, federal laws</p>
+                            </div>
+                            <div class="card p-4 rounded-lg">
+                                <h3 class="font-semibold mb-2">🇧🇩 Bangladesh</h3>
+                                <p class="text-sm text-gray-400">National laws and regulations</p>
+                            </div>
+                            <div class="card p-4 rounded-lg">
+                                <h3 class="font-semibold mb-2">🇵🇰 Pakistan</h3>
+                                <p class="text-sm text-gray-400">Legal documents and cases</p>
+                            </div>
+                            <div class="card p-4 rounded-lg">
+                                <h3 class="font-semibold mb-2">🇦🇺 Australia</h3>
+                                <p class="text-sm text-gray-400">Legal corpus and regulations</p>
+                            </div>
+                            <div class="card p-4 rounded-lg">
+                                <h3 class="font-semibold mb-2">📋 Legal QA</h3>
+                                <p class="text-sm text-gray-400">Training and test datasets</p>
+                            </div>
+                            <div class="card p-4 rounded-lg">
+                                <h3 class="font-semibold mb-2">💊 Narcotics Act</h3>
+                                <p class="text-sm text-gray-400">Narcotics Act No. 1 of 2008</p>
+                            </div>
+                            <div class="card p-4 rounded-lg">
+                                <h3 class="font-semibold mb-2">🤖 DeepSeek AI</h3>
+                                <p class="text-sm text-gray-400">AI Legal Advisor</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Document Analysis View -->
+            <div id="ocr-view" class="view-content hidden">
+                <h1 class="text-3xl font-bold mb-2">Document Analysis</h1>
+                <p class="text-lg text-gray-400 mb-8">Upload legal documents for analysis and risk assessment.</p>
+                <div class="text-center">
+                    <button id="upload-doc-btn" class="btn-primary px-8 py-4 text-lg rounded-lg">
+                        Click to Upload Document 📄
+                    </button>
+                    <input id="doc-upload-input" type="file" class="hidden" accept=".pdf,.docx">
+                </div>
+                <div id="doc-analysis-results" class="mt-8 hidden">
+                    <h2 class="text-2xl font-bold mb-4">Analysis Report</h2>
+                    <div class="space-y-6">
+                        <div class="card p-6 rounded-xl">
+                            <h3 class="text-xl font-semibold mb-2 text-amber-400">Extracted Text</h3>
+                            <p id="extracted-text" class="text-gray-300">Loading extracted text...</p>
+                        </div>
+                        <div class="card p-6 rounded-xl">
+                            <h3 class="text-xl font-semibold mb-2 text-amber-400">Key Findings</h3>
+                            <p id="key-findings" class="text-gray-300">Generating summary...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Emergency Help View -->
+            <div id="emergency-view" class="view-content hidden">
+                <!-- Back Button -->
+                <div class="flex items-center mb-6">
+                    <button id="emergency-back-btn" class="flex items-center text-gray-400 hover:text-white transition-colors mr-4">
+                        <span class="text-xl mr-2">←</span>
+                        <span>Back</span>
+                    </button>
+                    <h1 class="text-3xl font-bold">🚨 Emergency Contacts</h1>
+                </div>
+                <p class="text-lg text-gray-400 mb-8">Emergency contact numbers for immediate assistance. Tap to call.</p>
+                
+                <!-- Country Selection -->
+                <div class="mb-8">
+                    <div class="flex flex-wrap gap-3">
+                        <button class="country-btn active px-4 py-2 rounded-lg bg-red-600 text-white" data-country="us">🇺🇸 United States</button>
+                        <button class="country-btn px-4 py-2 rounded-lg bg-gray-700 text-white hover:bg-gray-600" data-country="bd">🇧🇩 Bangladesh</button>
+                        <button class="country-btn px-4 py-2 rounded-lg bg-gray-700 text-white hover:bg-gray-600" data-country="pk">🇵🇰 Pakistan</button>
+                        <button class="country-btn px-4 py-2 rounded-lg bg-gray-700 text-white hover:bg-gray-600" data-country="au">🇦🇺 Australia</button>
+                        <button class="country-btn px-4 py-2 rounded-lg bg-gray-700 text-white hover:bg-gray-600" data-country="vn">🇻🇳 Vietnam</button>
+                        <button class="country-btn px-4 py-2 rounded-lg bg-gray-700 text-white hover:bg-gray-600" data-country="in">🇮🇳 India</button>
+                    </div>
+                </div>
+
+                <!-- Emergency Contacts Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- United States -->
+                    <div id="us-contacts" class="country-contacts">
+                        <div class="card p-6 rounded-xl">
+                            <h3 class="text-xl font-bold mb-4 text-red-400">🇺🇸 United States</h3>
+                            <div class="space-y-3">
+                                <a href="tel:911" class="emergency-contact flex items-center justify-between p-3 bg-red-900/20 rounded-lg hover:bg-red-900/30 transition-colors cursor-pointer">
+                                    <div>
+                                        <span class="font-semibold">🚔 Police Emergency</span>
+                                        <p class="text-sm text-gray-400">General Emergency</p>
+                                    </div>
+                                    <span class="font-bold text-red-400">911</span>
+                                </a>
+                                <a href="tel:911" class="emergency-contact flex items-center justify-between p-3 bg-orange-900/20 rounded-lg hover:bg-orange-900/30 transition-colors cursor-pointer">
+                                    <div>
+                                        <span class="font-semibold">🚑 Ambulance</span>
+                                        <p class="text-sm text-gray-400">Medical Emergency</p>
+                                    </div>
+                                    <span class="font-bold text-orange-400">911</span>
+                                </a>
+                                <a href="tel:911" class="emergency-contact flex items-center justify-between p-3 bg-yellow-900/20 rounded-lg hover:bg-yellow-900/30 transition-colors cursor-pointer">
+                                    <div>
+                                        <span class="font-semibold">🚒 Fire Brigade</span>
+                                        <p class="text-sm text-gray-400">Fire Emergency</p>
+                                    </div>
+                                    <span class="font-bold text-yellow-400">911</span>
+                                </a>
+                                <a href="tel:+1-202-501-4444" class="emergency-contact flex items-center justify-between p-3 bg-blue-900/20 rounded-lg hover:bg-blue-900/30 transition-colors cursor-pointer">
+                                    <div>
+                                        <span class="font-semibold">🏛️ US Embassy</span>
+                                        <p class="text-sm text-gray-400">Consular Services</p>
+                                    </div>
+                                    <span class="font-bold text-blue-400">+1-202-501-4444</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bangladesh -->
+                    <div id="bd-contacts" class="country-contacts hidden">
+                        <div class="card p-6 rounded-xl">
+                            <h3 class="text-xl font-bold mb-4 text-red-400">🇧🇩 Bangladesh</h3>
+                            <div class="space-y-3">
+                                <a href="tel:999" class="emergency-contact flex items-center justify-between p-3 bg-red-900/20 rounded-lg hover:bg-red-900/30 transition-colors cursor-pointer">
+                                    <div>
+                                        <span class="font-semibold">🚔 Police Emergency</span>
+                                        <p class="text-sm text-gray-400">General Emergency</p>
+                                    </div>
+                                    <span class="font-bold text-red-400">999</span>
+                                </a>
+                                <a href="tel:199" class="emergency-contact flex items-center justify-between p-3 bg-orange-900/20 rounded-lg hover:bg-orange-900/30 transition-colors cursor-pointer">
+                                    <div>
+                                        <span class="font-semibold">🚑 Ambulance</span>
+                                        <p class="text-sm text-gray-400">Medical Emergency</p>
+                                    </div>
+                                    <span class="font-bold text-orange-400">199</span>
+                                </a>
+                                <a href="tel:16163" class="emergency-contact flex items-center justify-between p-3 bg-yellow-900/20 rounded-lg hover:bg-yellow-900/30 transition-colors cursor-pointer">
+                                    <div>
+                                        <span class="font-semibold">🚒 Fire Brigade</span>
+                                        <p class="text-sm text-gray-400">Fire Emergency</p>
+                                    </div>
+                                    <span class="font-bold text-yellow-400">16163</span>
+                                </a>
+                                <a href="tel:+880-2-5566-2000" class="emergency-contact flex items-center justify-between p-3 bg-blue-900/20 rounded-lg hover:bg-blue-900/30 transition-colors cursor-pointer">
+                                    <div>
+                                        <span class="font-semibold">🏛️ Bangladesh Embassy</span>
+                                        <p class="text-sm text-gray-400">Consular Services</p>
+                                    </div>
+                                    <span class="font-bold text-blue-400">+880-2-5566-2000</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pakistan -->
+                    <div id="pk-contacts" class="country-contacts hidden">
+                        <div class="card p-6 rounded-xl">
+                            <h3 class="text-xl font-bold mb-4 text-red-400">🇵🇰 Pakistan</h3>
+                            <div class="space-y-3">
+                                <a href="tel:15" class="emergency-contact flex items-center justify-between p-3 bg-red-900/20 rounded-lg hover:bg-red-900/30 transition-colors cursor-pointer">
+                                    <div>
+                                        <span class="font-semibold">🚔 Police Emergency</span>
+                                        <p class="text-sm text-gray-400">General Emergency</p>
+                                    </div>
+                                    <span class="font-bold text-red-400">15</span>
+                                </a>
+                                <a href="tel:115" class="emergency-contact flex items-center justify-between p-3 bg-orange-900/20 rounded-lg hover:bg-orange-900/30 transition-colors cursor-pointer">
+                                    <div>
+                                        <span class="font-semibold">🚑 Ambulance</span>
+                                        <p class="text-sm text-gray-400">Medical Emergency</p>
+                                    </div>
+                                    <span class="font-bold text-orange-400">115</span>
+                                </a>
+                                <a href="tel:16" class="emergency-contact flex items-center justify-between p-3 bg-yellow-900/20 rounded-lg hover:bg-yellow-900/30 transition-colors cursor-pointer">
+                                    <div>
+                                        <span class="font-semibold">🚒 Fire Brigade</span>
+                                        <p class="text-sm text-gray-400">Fire Emergency</p>
+                                    </div>
+                                    <span class="font-bold text-yellow-400">16</span>
+                                </a>
+                                <a href="tel:+92-51-201-4000" class="emergency-contact flex items-center justify-between p-3 bg-blue-900/20 rounded-lg hover:bg-blue-900/30 transition-colors cursor-pointer">
+                                    <div>
+                                        <span class="font-semibold">🏛️ Pakistan Embassy</span>
+                                        <p class="text-sm text-gray-400">Consular Services</p>
+                                    </div>
+                                    <span class="font-bold text-blue-400">+92-51-201-4000</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Australia -->
+                    <div id="au-contacts" class="country-contacts hidden">
+                        <div class="card p-6 rounded-xl">
+                            <h3 class="text-xl font-bold mb-4 text-red-400">🇦🇺 Australia</h3>
+                            <div class="space-y-3">
+                                <a href="tel:000" class="emergency-contact flex items-center justify-between p-3 bg-red-900/20 rounded-lg hover:bg-red-900/30 transition-colors cursor-pointer">
+                                    <div>
+                                        <span class="font-semibold">🚔 Police Emergency</span>
+                                        <p class="text-sm text-gray-400">General Emergency</p>
+                                    </div>
+                                    <span class="font-bold text-red-400">000</span>
+                                </a>
+                                <a href="tel:000" class="emergency-contact flex items-center justify-between p-3 bg-orange-900/20 rounded-lg hover:bg-orange-900/30 transition-colors cursor-pointer">
+                                    <div>
+                                        <span class="font-semibold">🚑 Ambulance</span>
+                                        <p class="text-sm text-gray-400">Medical Emergency</p>
+                                    </div>
+                                    <span class="font-bold text-orange-400">000</span>
+                                </a>
+                                <a href="tel:000" class="emergency-contact flex items-center justify-between p-3 bg-yellow-900/20 rounded-lg hover:bg-yellow-900/30 transition-colors cursor-pointer">
+                                    <div>
+                                        <span class="font-semibold">🚒 Fire Brigade</span>
+                                        <p class="text-sm text-gray-400">Fire Emergency</p>
+                                    </div>
+                                    <span class="font-bold text-yellow-400">000</span>
+                                </a>
+                                <a href="tel:+61-2-6214-0000" class="emergency-contact flex items-center justify-between p-3 bg-blue-900/20 rounded-lg hover:bg-blue-900/30 transition-colors cursor-pointer">
+                                    <div>
+                                        <span class="font-semibold">🏛️ Australian Embassy</span>
+                                        <p class="text-sm text-gray-400">Consular Services</p>
+                                    </div>
+                                    <span class="font-bold text-blue-400">+61-2-6214-0000</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Vietnam -->
+                    <div id="vn-contacts" class="country-contacts hidden">
+                        <div class="card p-6 rounded-xl">
+                            <h3 class="text-xl font-bold mb-4 text-red-400">🇻🇳 Vietnam</h3>
+                            <div class="space-y-3">
+                                <a href="tel:113" class="emergency-contact flex items-center justify-between p-3 bg-red-900/20 rounded-lg hover:bg-red-900/30 transition-colors cursor-pointer">
+                                    <div>
+                                        <span class="font-semibold">🚔 Police Emergency</span>
+                                        <p class="text-sm text-gray-400">General Emergency</p>
+                                    </div>
+                                    <span class="font-bold text-red-400">113</span>
+                                </a>
+                                <a href="tel:115" class="emergency-contact flex items-center justify-between p-3 bg-orange-900/20 rounded-lg hover:bg-orange-900/30 transition-colors cursor-pointer">
+                                    <div>
+                                        <span class="font-semibold">🚑 Ambulance</span>
+                                        <p class="text-sm text-gray-400">Medical Emergency</p>
+                                    </div>
+                                    <span class="font-bold text-orange-400">115</span>
+                                </a>
+                                <a href="tel:114" class="emergency-contact flex items-center justify-between p-3 bg-yellow-900/20 rounded-lg hover:bg-yellow-900/30 transition-colors cursor-pointer">
+                                    <div>
+                                        <span class="font-semibold">🚒 Fire Brigade</span>
+                                        <p class="text-sm text-gray-400">Fire Emergency</p>
+                                    </div>
+                                    <span class="font-bold text-yellow-400">114</span>
+                                </a>
+                                <a href="tel:+84-24-3850-5000" class="emergency-contact flex items-center justify-between p-3 bg-blue-900/20 rounded-lg hover:bg-blue-900/30 transition-colors cursor-pointer">
+                                    <div>
+                                        <span class="font-semibold">🏛️ Vietnam Embassy</span>
+                                        <p class="text-sm text-gray-400">Consular Services</p>
+                                    </div>
+                                    <span class="font-bold text-blue-400">+84-24-3850-5000</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- India -->
+                    <div id="in-contacts" class="country-contacts hidden">
+                        <div class="card p-6 rounded-xl">
+                            <h3 class="text-xl font-bold mb-4 text-red-400">🇮🇳 India</h3>
+                            <div class="space-y-3">
+                                <a href="tel:100" class="emergency-contact flex items-center justify-between p-3 bg-red-900/20 rounded-lg hover:bg-red-900/30 transition-colors cursor-pointer">
+                                    <div>
+                                        <span class="font-semibold">🚔 Police Emergency</span>
+                                        <p class="text-sm text-gray-400">General Emergency</p>
+                                    </div>
+                                    <span class="font-bold text-red-400">100</span>
+                                </a>
+                                <a href="tel:102" class="emergency-contact flex items-center justify-between p-3 bg-orange-900/20 rounded-lg hover:bg-orange-900/30 transition-colors cursor-pointer">
+                                    <div>
+                                        <span class="font-semibold">🚑 Ambulance</span>
+                                        <p class="text-sm text-gray-400">Medical Emergency</p>
+                                    </div>
+                                    <span class="font-bold text-orange-400">102</span>
+                                </a>
+                                <a href="tel:101" class="emergency-contact flex items-center justify-between p-3 bg-yellow-900/20 rounded-lg hover:bg-yellow-900/30 transition-colors cursor-pointer">
+                                    <div>
+                                        <span class="font-semibold">🚒 Fire Brigade</span>
+                                        <p class="text-sm text-gray-400">Fire Emergency</p>
+                                    </div>
+                                    <span class="font-bold text-yellow-400">101</span>
+                                </a>
+                                <a href="tel:+91-11-2419-8000" class="emergency-contact flex items-center justify-between p-3 bg-blue-900/20 rounded-lg hover:bg-blue-900/30 transition-colors cursor-pointer">
+                                    <div>
+                                        <span class="font-semibold">🏛️ Indian Embassy</span>
+                                        <p class="text-sm text-gray-400">Consular Services</p>
+                                    </div>
+                                    <span class="font-bold text-blue-400">+91-11-2419-8000</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quick Legal Advice Section -->
+                <div class="mt-8">
+                    <h2 class="text-2xl font-bold mb-4">Quick Legal Advice</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <button class="btn-secondary w-full p-4 rounded-lg text-left">
+                            <span class="font-semibold">🚨 I've been arrested</span>
+                            <p class="text-sm text-gray-400 mt-1">Know your rights and next steps</p>
+                        </button>
+                        <button class="btn-secondary w-full p-4 rounded-lg text-left">
+                            <span class="font-semibold">⚖️ I need a lawyer</span>
+                            <p class="text-sm text-gray-400 mt-1">How to find legal representation</p>
+                        </button>
+                        <button class="btn-secondary w-full p-4 rounded-lg text-left">
+                            <span class="font-semibold">🏠 Domestic violence</span>
+                            <p class="text-sm text-gray-400 mt-1">Immediate safety and legal help</p>
+                        </button>
+                        <button class="btn-secondary w-full p-4 rounded-lg text-left">
+                            <span class="font-semibold">💼 Immigration issues</span>
+                            <p class="text-sm text-gray-400 mt-1">Visa and citizenship problems</p>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // Check for anchor links in URL
+    const hash = window.location.hash;
+    if (hash) {
+        const targetId = hash.substring(1) + '-view';
+        if (document.getElementById(targetId)) {
+            navigateTo(targetId);
+        }
+    }
+    
+    // Navigation
+    const navLinks = document.querySelectorAll('.nav-item');
+    const dashboardCards = document.querySelectorAll('.card[data-target]');
+    const views = document.querySelectorAll('.view-content');
+
+    function navigateTo(targetId) {
+        views.forEach(view => view.classList.add('hidden'));
+        document.getElementById(targetId).classList.remove('hidden');
+
+        navLinks.forEach(link => {
+            if (link.dataset.target === targetId) {
+                link.classList.add('active');
+            } else {
+                link.classList.remove('active');
+            }
+        });
+    }
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            navigateTo(link.dataset.target);
+        });
+    });
+    
+    dashboardCards.forEach(card => {
+        card.addEventListener('click', (e) => {
+            e.preventDefault();
+            navigateTo(card.dataset.target);
+        });
+    });
+    
+    // Chat functionality
+    const chatWindow = document.getElementById('chat-window');
+    const chatInput = document.getElementById('chat-input');
+    const sendBtn = document.getElementById('send-btn');
+    const chatStatus = document.getElementById('chat-status');
+
+    function addMessageToChat(message, sender) {
+        const bubble = document.createElement('div');
+        bubble.classList.add('flex', sender === 'user' ? 'justify-end' : 'justify-start');
+        
+        const content = document.createElement('div');
+        content.classList.add(sender === 'user' ? 'chat-bubble-user' : 'chat-bubble-bot', 'p-3', 'rounded-lg', 'max-w-lg');
+        content.textContent = message;
+        
+        bubble.appendChild(content);
+        chatWindow.appendChild(bubble);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    async function handleSendMessage() {
+        const userMessage = chatInput.value.trim();
+        if (!userMessage) return;
+
+        addMessageToChat(userMessage, 'user');
+        chatInput.value = '';
+        chatStatus.textContent = "LawHub is searching...";
+
+        try {
+            const response = await fetch('/api/ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question: userMessage })
+            });
+            const result = await response.json();
+            if (Array.isArray(result) && result.length > 0) {
+                let botResponse = '';
+                result.forEach((res, idx) => {
+                    botResponse += `Result #${idx+1} (Dataset: ${res.dataset}, Score: ${res.score}):\n`;
+                    botResponse += JSON.stringify(res.result, null, 2) + '\n\n';
+                });
+                addMessageToChat(botResponse, 'bot');
+            } else {
+                addMessageToChat("Sorry, I couldn't find a relevant legal answer.", 'bot');
+            }
+        } catch (error) {
+            addMessageToChat("An error occurred while connecting to the backend. Please try again later.", 'bot');
+            console.error("Error calling Flask API:", error);
+        } finally {
+            chatStatus.textContent = "";
+        }
+    }
+
+    sendBtn.addEventListener('click', handleSendMessage);
+    chatInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            handleSendMessage();
+        }
+    });
+
+    // Legal QA functionality
+    const legalQaBtn = document.getElementById('legal-qa-btn');
+    
+    async function handleLegalQAMessage() {
+        const userMessage = chatInput.value.trim();
+        if (!userMessage) return;
+
+        addMessageToChat(userMessage, 'user');
+        chatInput.value = '';
+        chatStatus.textContent = "Searching Legal QA datasets...";
+
+        try {
+            const response = await fetch('/api/legal_qa', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question: userMessage })
+            });
+            const result = await response.json();
+            if (Array.isArray(result) && result.length > 0) {
+                let botResponse = '📋 Legal QA Results:\n\n';
+                result.forEach((res, idx) => {
+                    botResponse += `Result #${idx+1} (Dataset: ${res.dataset}, Score: ${res.score}):\n`;
+                    botResponse += JSON.stringify(res.result, null, 2) + '\n\n';
+                });
+                addMessageToChat(botResponse, 'bot');
+            } else {
+                addMessageToChat("No relevant Legal QA results found. Trying general search...", 'bot');
+                // Fallback to general search
+                handleSendMessage();
+            }
+        } catch (error) {
+            addMessageToChat("Error searching Legal QA datasets. Trying general search...", 'bot');
+            console.error("Error calling Legal QA API:", error);
+            // Fallback to general search
+            handleSendMessage();
+        } finally {
+            chatStatus.textContent = "";
+        }
+    }
+
+    legalQaBtn.addEventListener('click', handleLegalQAMessage);
+
+    // DeepSeek AI functionality
+    const deepseekBtn = document.getElementById('deepseek-btn');
+    
+    async function handleDeepSeekMessage() {
+        const userMessage = chatInput.value.trim();
+        if (!userMessage) return;
+
+        addMessageToChat(userMessage, 'user');
+        chatInput.value = '';
+        chatStatus.textContent = "Getting AI Legal Advice from DeepSeek...";
+
+        try {
+            const response = await fetch('/api/deepseek_legal', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question: userMessage })
+            });
+            const result = await response.json();
+            
+            if (result.success) {
+                let botResponse = '';
+                if (result.fallback) {
+                    botResponse = `⚠️ **DeepSeek AI Unavailable**\n\n`;
+                    botResponse += result.answer;
+                    botResponse += `\n\n*Source: ${result.source}*`;
+                } else {
+                    botResponse = `🤖 **DeepSeek AI Legal Advisor**\n\n`;
+                    botResponse += result.answer;
+                    botResponse += `\n\n*Source: ${result.source}*`;
+                }
+                addMessageToChat(botResponse, 'bot');
+            } else {
+                if (result.error && result.error.toLowerCase().includes('insufficient')) {
+                    addMessageToChat(`⚠️ **DeepSeek AI Unavailable**: Insufficient balance. Please try the "📋 Legal QA" button for legal information from our database.`, 'bot');
+                } else {
+                    addMessageToChat(`❌ DeepSeek AI Error: ${result.error}`, 'bot');
+                }
+            }
+        } catch (error) {
+            addMessageToChat("❌ Error connecting to DeepSeek AI. Please check your API key configuration.", 'bot');
+            console.error("Error calling DeepSeek API:", error);
+        } finally {
+            chatStatus.textContent = "";
+        }
+    }
+
+    deepseekBtn.addEventListener('click', handleDeepSeekMessage);
+
+    // Laws search functionality
+    const lawsSearch = document.getElementById('laws-search');
+    const searchLawsBtn = document.getElementById('search-laws-btn');
+    const lawsResults = document.getElementById('laws-results');
+
+    async function searchLaws() {
+        const query = lawsSearch.value.trim();
+        if (!query) return;
+
+        lawsResults.innerHTML = '<p class="text-gray-400">Searching...</p>';
+
+        try {
+            const response = await fetch('/api/ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question: query })
+            });
+            const result = await response.json();
+            
+            if (Array.isArray(result) && result.length > 0) {
+                lawsResults.innerHTML = '';
+                result.forEach((res, idx) => {
+                    const resultDiv = document.createElement('div');
+                    resultDiv.className = 'card p-4 rounded-lg';
+                    resultDiv.innerHTML = `
+                        <h3 class="font-semibold mb-2">${res.dataset} (Score: ${res.score})</h3>
+                        <pre class="text-sm text-gray-300 overflow-auto">${JSON.stringify(res.result, null, 2)}</pre>
+                    `;
+                    lawsResults.appendChild(resultDiv);
+                });
+            } else {
+                lawsResults.innerHTML = '<p class="text-gray-400">No relevant laws found.</p>';
+            }
+        } catch (error) {
+            lawsResults.innerHTML = '<p class="text-red-400">Error searching laws.</p>';
+            console.error("Error searching laws:", error);
+        }
+    }
+
+    searchLawsBtn.addEventListener('click', searchLaws);
+    lawsSearch.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            searchLaws();
+        }
+    });
+
+    // Document analysis
+    const uploadDocBtn = document.getElementById('upload-doc-btn');
+    const docUploadInput = document.getElementById('doc-upload-input');
+    const docAnalysisResults = document.getElementById('doc-analysis-results');
+    const extractedTextElem = document.getElementById('extracted-text');
+    const keyFindingsElem = document.getElementById('key-findings');
+
+    uploadDocBtn.addEventListener('click', () => docUploadInput.click());
+    docUploadInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        docAnalysisResults.classList.remove('hidden');
+        extractedTextElem.textContent = "Extracting text...";
+        keyFindingsElem.textContent = "Generating summary...";
+
+        setTimeout(() => {
+            extractedTextElem.textContent = "Document text extracted successfully. This feature would integrate with OCR services for real document processing.";
+            keyFindingsElem.textContent = "Key legal terms and clauses identified. Summary generated based on document content.";
+        }, 2000);
+    });
+
+    // Emergency contacts functionality
+    const countryBtns = document.querySelectorAll('.country-btn');
+    const countryContacts = document.querySelectorAll('.country-contacts');
+    const emergencyBackBtn = document.getElementById('emergency-back-btn');
+
+    // Country selection
+    countryBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const country = btn.dataset.country;
+            
+            // Update button states
+            countryBtns.forEach(b => {
+                b.classList.remove('active', 'bg-red-600');
+                b.classList.add('bg-gray-700');
+            });
+            btn.classList.add('active', 'bg-red-600');
+            btn.classList.remove('bg-gray-700');
+            
+            // Show/hide country contacts
+            countryContacts.forEach(contact => {
+                contact.classList.add('hidden');
+            });
+            document.getElementById(`${country}-contacts`).classList.remove('hidden');
+        });
+    });
+
+    // Back button functionality
+    emergencyBackBtn.addEventListener('click', () => {
+        navigateTo('dashboard-view');
+    });
+
+
+
+    // Check backend status
+    fetch('/api/status')
+        .then(response => response.json())
+        .then(data => {
+            console.log('Backend status:', data);
+        })
+        .catch(error => {
+            console.error('Backend not available:', error);
+        });
+});
+</script>
+</body>
+</html> 

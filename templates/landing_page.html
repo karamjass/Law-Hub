@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LawHub - Legal Guidance Anywhere</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { 
+            background-color: #1a1a1a; 
+            color: #ffffff; 
+            font-family: 'Inter', sans-serif; 
+        }
+        .emergency-banner { background-color: #dc2626; }
+        .btn-primary { background-color: #FF9900; color: #000000; font-weight: 700; }
+        .btn-secondary { background-color: transparent; color: #FF9900; border: 1px solid #FF9900; }
+        .btn-emergency { background-color: #dc2626; color: #ffffff; }
+        .card { background-color: #2c2c2c; }
+        .stats-number { color: #FF9900; }
+        .topic-tag { background-color: #2c2c2c; color: #ffffff; }
+        .hamburger-menu { background-color: #000000; }
+        .menu-item { color: #a0a0a0; transition: all 0.2s ease-in-out; }
+        .menu-item:hover { background-color: #2c2c2c; color: #FF9900; }
+        .menu-item.active { background-color: #2c2c2c; color: #FF9900; border-left: 3px solid #FF9900; }
+    </style>
+</head>
+<body class="antialiased">
+    <!-- Emergency Banner -->
+    <div class="emergency-banner p-4 flex justify-between items-center">
+        <div class="flex items-center space-x-2">
+            <span class="text-white font-medium">Emergency Legal Situation? Get immediate assistance →</span>
+        </div>
+        <div class="flex items-center space-x-3">
+            <button class="bg-white text-red-600 px-4 py-2 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+                Get Help Now
+            </button>
+            <button id="close-banner" class="text-white hover:text-gray-200 text-xl font-bold">×</button>
+        </div>
+    </div>
+
+    <!-- Hamburger Menu -->
+    <div class="fixed top-4 left-4 z-50">
+        <button id="hamburger-btn" class="text-white text-2xl font-bold bg-black/50 p-2 rounded-lg hover:bg-black/70 transition-colors">
+            ☰
+        </button>
+    </div>
+
+    <!-- Sidebar Menu -->
+    <div id="sidebar-menu" class="hamburger-menu fixed top-0 left-0 w-64 h-full transform -translate-x-full transition-transform duration-300 z-40 p-4">
+        <div class="flex items-center justify-between mb-8">
+            <span class="text-xl font-bold text-white">LawHub</span>
+            <button id="close-menu" class="text-white text-2xl font-bold hover:text-gray-300">×</button>
+        </div>
+        <ul class="space-y-2">
+            <li><a href="/" class="menu-item active flex items-center p-3 rounded-lg">
+                <span class="mr-3">🏠</span> Home
+            </a></li>
+            <li><a href="/app" class="menu-item flex items-center p-3 rounded-lg">
+                <span class="mr-3">💬</span> Legal Q&A
+            </a></li>
+            <li><a href="/app#laws" class="menu-item flex items-center p-3 rounded-lg">
+                <span class="mr-3">📚</span> Laws Explorer
+            </a></li>
+            <li><a href="/app#documents" class="menu-item flex items-center p-3 rounded-lg">
+                <span class="mr-3">📄</span> Document Analysis
+            </a></li>
+            <li><a href="/app#emergency" class="menu-item flex items-center p-3 rounded-lg">
+                <span class="mr-3">🚨</span> Emergency Help
+            </a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content -->
+    <main class="min-h-screen flex flex-col items-center justify-center px-4 py-8">
+        <!-- Hero Section -->
+        <div class="text-center mb-16">
+            <h1 class="text-5xl md:text-6xl font-bold mb-4">
+                <span class="text-white">Legal Guidance</span>
+                <span class="text-orange-500">Anywhere.</span>
+            </h1>
+            <p class="text-xl text-gray-300 max-w-2xl mx-auto mb-8">
+                Get instant legal assistance, understand local laws, and access emergency help wherever you are in the world.
+            </p>
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button class="btn-primary px-8 py-4 text-lg rounded-lg hover:bg-orange-600 transition-colors">
+                    Explore Legal Info
+                </button>
+                <button class="btn-secondary px-8 py-4 text-lg rounded-lg hover:bg-orange-500 hover:text-black transition-colors">
+                    Chat with LawBot
+                </button>
+                <button class="btn-emergency px-8 py-4 text-lg rounded-lg hover:bg-red-700 transition-colors">
+                    Emergency Help
+                </button>
+            </div>
+        </div>
+
+        <!-- Emergency Contacts Preview -->
+        <div class="w-full max-w-6xl mb-16">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold mb-4">🚨 Emergency Contacts</h2>
+                <p class="text-xl text-gray-300">Quick access to emergency services worldwide. Tap to call immediately.</p>
+            </div>
+            <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 mb-8">
+                <a href="/app#emergency" class="card p-4 rounded-xl text-center hover:bg-gray-700 transition-colors cursor-pointer">
+                    <div class="text-2xl mb-2">🇺🇸</div>
+                    <div class="font-semibold">United States</div>
+                    <div class="text-sm text-gray-400">911</div>
+                </a>
+                <a href="/app#emergency" class="card p-4 rounded-xl text-center hover:bg-gray-700 transition-colors cursor-pointer">
+                    <div class="text-2xl mb-2">🇧🇩</div>
+                    <div class="font-semibold">Bangladesh</div>
+                    <div class="text-sm text-gray-400">999</div>
+                </a>
+                <a href="/app#emergency" class="card p-4 rounded-xl text-center hover:bg-gray-700 transition-colors cursor-pointer">
+                    <div class="text-2xl mb-2">🇵🇰</div>
+                    <div class="font-semibold">Pakistan</div>
+                    <div class="text-sm text-gray-400">15</div>
+                </a>
+                <a href="/app#emergency" class="card p-4 rounded-xl text-center hover:bg-gray-700 transition-colors cursor-pointer">
+                    <div class="text-2xl mb-2">🇦🇺</div>
+                    <div class="font-semibold">Australia</div>
+                    <div class="text-sm text-gray-400">000</div>
+                </a>
+                <a href="/app#emergency" class="card p-4 rounded-xl text-center hover:bg-gray-700 transition-colors cursor-pointer">
+                    <div class="text-2xl mb-2">🇻🇳</div>
+                    <div class="font-semibold">Vietnam</div>
+                    <div class="text-sm text-gray-400">113</div>
+                </a>
+                <a href="/app#emergency" class="card p-4 rounded-xl text-center hover:bg-gray-700 transition-colors cursor-pointer">
+                    <div class="text-2xl mb-2">🇮🇳</div>
+                    <div class="font-semibold">India</div>
+                    <div class="text-sm text-gray-400">100</div>
+                </a>
+            </div>
+            <div class="text-center">
+                <button class="btn-emergency px-8 py-4 text-lg rounded-lg hover:bg-red-700 transition-colors">
+                    View All Emergency Contacts
+                </button>
+            </div>
+        </div>
+
+        <!-- Comprehensive Legal Solutions -->
+        <div class="w-full max-w-6xl mb-16">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold mb-4">Comprehensive Legal Solutions</h2>
+                <p class="text-xl text-gray-300">Access powerful tools designed to help you navigate legal challenges with confidence.</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="card p-6 rounded-xl">
+                    <div class="text-orange-500 text-3xl mb-4">💬</div>
+                    <h3 class="text-xl font-bold mb-2">AI Legal Chatbot</h3>
+                    <p class="text-gray-300">Ask legal questions and get instant answers tailored to your location</p>
+                </div>
+                <div class="card p-6 rounded-xl">
+                    <div class="text-blue-400 text-3xl mb-4">📄</div>
+                    <h3 class="text-xl font-bold mb-2">Document OCR Analysis</h3>
+                    <p class="text-gray-300">Upload legal documents and get them analyzed and explained</p>
+                </div>
+                <div class="card p-6 rounded-xl">
+                    <div class="text-green-400 text-3xl mb-4">🔍</div>
+                    <h3 class="text-xl font-bold mb-2">Legal Database Explorer</h3>
+                    <p class="text-gray-300">Browse comprehensive legal information by country and topic</p>
+                </div>
+                <div class="card p-6 rounded-xl">
+                    <div class="text-red-400 text-3xl mb-4">🛡️</div>
+                    <h3 class="text-xl font-bold mb-2">Emergency Assistance</h3>
+                    <p class="text-gray-300">Get immediate help with embassy contacts and local emergency services</p>
+                </div>
+                <div class="card p-6 rounded-xl">
+                    <div class="text-purple-400 text-3xl mb-4">🎤</div>
+                    <h3 class="text-xl font-bold mb-2">Voice & TTS Support</h3>
+                    <p class="text-gray-300">Speak your questions and listen to responses in multiple languages</p>
+                </div>
+                <div class="card p-6 rounded-xl">
+                    <div class="text-blue-400 text-3xl mb-4">🌍</div>
+                    <h3 class="text-xl font-bold mb-2">Multi-Language Support</h3>
+                    <p class="text-gray-300">Access legal guidance in English, Arabic, French, Chinese, and more</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Legal Knowledge Base -->
+        <div class="w-full max-w-6xl mb-16">
+            <div class="text-center mb-12">
+                <div class="flex items-center justify-center mb-4">
+                    <span class="text-orange-500 text-3xl mr-3">🔍</span>
+                    <h2 class="text-4xl font-bold">Legal Knowledge Base</h2>
+                </div>
+                <p class="text-xl text-gray-300">Access comprehensive legal information from around the world. Search by country, topic, or specific legal questions.</p>
+            </div>
+            
+            <!-- Statistics -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-6 mb-12">
+                <div class="card p-6 rounded-xl text-center">
+                    <div class="stats-number text-3xl font-bold mb-2">50,000+</div>
+                    <div class="text-gray-300">Legal Articles</div>
+                </div>
+                <div class="card p-6 rounded-xl text-center">
+                    <div class="stats-number text-3xl font-bold mb-2">195</div>
+                    <div class="text-gray-300">Countries</div>
+                </div>
+                <div class="card p-6 rounded-xl text-center">
+                    <div class="stats-number text-3xl font-bold mb-2">15+</div>
+                    <div class="text-gray-300">Languages</div>
+                </div>
+                <div class="card p-6 rounded-xl text-center">
+                    <div class="stats-number text-3xl font-bold mb-2">10,000+</div>
+                    <div class="text-gray-300">Daily Searches</div>
+                </div>
+            </div>
+
+            <!-- Popular Topics -->
+            <div class="text-center mb-8">
+                <div class="flex items-center justify-center mb-6">
+                    <span class="text-orange-500 text-xl mr-2">📈</span>
+                    <h3 class="text-2xl font-bold">Popular Topics</h3>
+                </div>
+                <div class="flex flex-wrap justify-center gap-3">
+                    <span class="topic-tag px-4 py-2 rounded-lg">Employment Rights</span>
+                    <span class="topic-tag px-4 py-2 rounded-lg">Immigration Laws</span>
+                    <span class="topic-tag px-4 py-2 rounded-lg">Property Rights</span>
+                    <span class="topic-tag px-4 py-2 rounded-lg">Consumer Protection</span>
+                    <span class="topic-tag px-4 py-2 rounded-lg">Family Law</span>
+                    <span class="topic-tag px-4 py-2 rounded-lg">Business Regulations</span>
+                </div>
+            </div>
+
+            <!-- Call to Action -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                <button class="btn-primary px-8 py-4 text-lg rounded-lg hover:bg-orange-600 transition-colors">
+                    Explore Database
+                </button>
+                <button class="btn-secondary px-8 py-4 text-lg rounded-lg hover:bg-orange-500 hover:text-black transition-colors">
+                    Ask AI Assistant
+                </button>
+            </div>
+        </div>
+
+        <!-- Trust Section -->
+        <div class="w-full max-w-6xl">
+            <div class="text-center mb-12">
+                <h2 class="text-4xl font-bold mb-8">Trusted by Users Worldwide</h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6">
+                    <div class="text-center">
+                        <div class="stats-number text-3xl font-bold mb-2">195+</div>
+                        <div class="text-gray-300">Countries Covered</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="stats-number text-3xl font-bold mb-2">50K+</div>
+                        <div class="text-gray-300">Legal Documents</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="stats-number text-3xl font-bold mb-2">24/7</div>
+                        <div class="text-gray-300">Emergency Support</div>
+                    </div>
+                    <div class="text-center">
+                        <div class="stats-number text-3xl font-bold mb-2">15+</div>
+                        <div class="text-gray-300">Languages</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 py-12">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="text-center">
+                <div class="flex items-center justify-center mb-4">
+                    <div class="bg-orange-500 w-8 h-8 rounded-lg flex items-center justify-center mr-3">
+                        <span class="text-black font-bold text-lg">L</span>
+                    </div>
+                    <span class="text-2xl font-bold">LawHub</span>
+                </div>
+                <p class="text-gray-300 mb-6">Empowering individuals with accessible legal guidance worldwide</p>
+                <div class="flex justify-center space-x-6 mb-6">
+                    <a href="/app#laws" class="text-gray-300 hover:text-orange-500 transition-colors">Legal Database</a>
+                    <a href="/app" class="text-gray-300 hover:text-orange-500 transition-colors">AI Assistant</a>
+                    <a href="/app#emergency" class="text-gray-300 hover:text-orange-500 transition-colors">Emergency Help</a>
+                    <a href="#" class="text-gray-300 hover:text-orange-500 transition-colors">Languages</a>
+                </div>
+                <div class="border-t border-gray-700 pt-6">
+                    <p class="text-gray-400 text-sm">© 2024 LawHub. All rights reserved. | Legal guidance for informational purposes only.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hamburger menu functionality
+            const hamburgerBtn = document.getElementById('hamburger-btn');
+            const sidebarMenu = document.getElementById('sidebar-menu');
+            const closeMenu = document.getElementById('close-menu');
+            const closeBanner = document.getElementById('close-banner');
+            const emergencyBanner = document.querySelector('.emergency-banner');
+
+            hamburgerBtn.addEventListener('click', function() {
+                sidebarMenu.classList.remove('-translate-x-full');
+            });
+
+            closeMenu.addEventListener('click', function() {
+                sidebarMenu.classList.add('-translate-x-full');
+            });
+
+            // Close banner
+            closeBanner.addEventListener('click', function() {
+                emergencyBanner.style.display = 'none';
+            });
+
+            // Close menu when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!sidebarMenu.contains(e.target) && !hamburgerBtn.contains(e.target)) {
+                    sidebarMenu.classList.add('-translate-x-full');
+                }
+            });
+
+            // Button functionality
+            const exploreBtn = document.querySelector('.btn-primary');
+            const chatBtn = document.querySelector('.btn-secondary');
+            const emergencyBtn = document.querySelector('.btn-emergency');
+
+            exploreBtn.addEventListener('click', function() {
+                window.location.href = '/app#laws';
+            });
+
+            chatBtn.addEventListener('click', function() {
+                window.location.href = '/app';
+            });
+
+            emergencyBtn.addEventListener('click', function() {
+                window.location.href = '/app#emergency';
+            });
+
+            // Emergency banner button
+            const getHelpBtn = document.querySelector('.emergency-banner .bg-white');
+            getHelpBtn.addEventListener('click', function() {
+                window.location.href = '/app#emergency';
+            });
+
+            // Emergency contacts preview button
+            const viewAllEmergencyBtn = document.querySelector('.btn-emergency');
+            viewAllEmergencyBtn.addEventListener('click', function() {
+                window.location.href = '/app#emergency';
+            });
+        });
+    </script>
+</body>
+</html> 

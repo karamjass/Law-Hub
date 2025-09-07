@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LawHub - Your Global Legal Companion</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chosen Palette: Pornhub (Orange/Yellow/Black) -->
+    <!-- Application Structure Plan: A single-page dashboard application with a fixed sidebar for navigation and a dynamic main content area. This structure provides a persistent, tool-like feel, allowing users to easily switch between core functions (Q&A, Document Analysis, Jurisdiction Explorer, Settings) without losing context. This is more user-friendly for a utility app than a long, scrolling page, as it organizes distinct tasks into clear, accessible sections. The user flow is designed to be intuitive: land on a dashboard, select a task, and interact within a dedicated view. -->
+    <!-- Visualization & Content Choices: 
+        - Dashboard: Goal: Inform & Guide -> Method: Clickable feature cards (HTML/Tailwind) -> Interaction: Navigate to sections -> Justification: Provides a clear, task-oriented entry point.
+        - Legal Q&A: Goal: Interact & Inform -> Method: Simulated chat interface (HTML/Tailwind) -> Interaction: JS-handled messages, voice/file upload buttons -> Justification: Familiar and direct way to engage with the core AI feature.
+        - Document Analysis: Goal: Organize & Inform -> Method: Simulated upload and structured report (HTML/Tailwind) -> Interaction: Button triggers a simulated analysis process -> Justification: Clearly demonstrates the document processing workflow.
+        - Jurisdiction Explorer: Goal: Compare & Inform -> Method: Dropdown-filtered content and a Chart.js bar chart -> Interaction: Dropdown updates text and chart data -> Justification: Allows for easy comparison and exploration of geo-specific legal information.
+    -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+
+    <style>
+        :root {
+            --ph-bg: #1a1a1a;
+            --ph-surface: #2c2c2c;
+            --ph-primary: #FF9900;
+            --ph-primary-hover: #E8A60C;
+            --ph-accent: #FFCF0D;
+            --ph-text-primary: #FFFFFF;
+            --ph-text-secondary: #a0a0a0;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--ph-bg);
+            color: var(--ph-text-primary);
+        }
+        .sidebar { background-color: #000000; }
+        .nav-item {
+            color: var(--ph-text-secondary);
+            transition: all 0.2s ease-in-out;
+        }
+        .nav-item:hover, .nav-item.active {
+            background-color: var(--ph-surface);
+            color: var(--ph-primary);
+            border-left: 3px solid var(--ph-primary);
+        }
+        .nav-item.active {
+             font-weight: 600;
+        }
+        .btn-primary {
+            background-color: var(--ph-primary);
+            color: #000000;
+            font-weight: 700;
+            transition: background-color 0.2s ease-in-out;
+        }
+        .btn-primary:hover {
+            background-color: var(--ph-primary-hover);
+        }
+        .btn-secondary {
+            background-color: var(--ph-surface);
+            color: var(--ph-text-primary);
+            transition: background-color 0.2s ease-in-out;
+        }
+        .btn-secondary:hover {
+            background-color: #444444;
+        }
+        .card {
+            background-color: var(--ph-surface);
+            transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.2), 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+        }
+        .form-input, .form-select {
+            background-color: var(--ph-surface);
+            border: 1px solid #444;
+            color: var(--ph-text-primary);
+        }
+        .chat-bubble-user {
+            background-color: var(--ph-primary);
+            color: #000;
+        }
+        .chat-bubble-bot {
+            background-color: var(--ph-surface);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 700px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 40vh;
+            max-height: 400px;
+        }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--ph-surface); }
+        ::-webkit-scrollbar-thumb { background: var(--ph-primary); border-radius: 4px;}
+        ::-webkit-scrollbar-thumb:hover { background: var(--ph-primary-hover); }
+    </style>
+</head>
+<body class="antialiased">
+    <div class="flex h-screen">
+        <!-- Sidebar -->
+        <nav class="sidebar w-64 flex-shrink-0 p-4 flex flex-col">
+            <div class="flex items-center mb-8">
+                <img src="https://i.imgur.com/g5dO4a7.png" alt="LawHub Logo" class="h-10 mr-2">
+            </div>
+            <ul class="space-y-2 flex-grow">
+                <li><a href="#" class="nav-item active flex items-center p-3 rounded-lg" data-target="dashboard-view">
+                    <span class="mr-3 text-xl">🏠</span> Dashboard
+                </a></li>
+                <li><a href="#" class="nav-item flex items-center p-3 rounded-lg" data-target="chat-view">
+                    <span class="mr-3 text-xl">💬</span> Legal Q&A
+                </a></li>
+                <li><a href="#" class="nav-item flex items-center p-3 rounded-lg" data-target="doc-view">
+                    <span class="mr-3 text-xl">📄</span> Document Analysis
+                </a></li>
+                <li><a href="#" class="nav-item flex items-center p-3 rounded-lg" data-target="geo-view">
+                    <span class="mr-3 text-xl">🌍</span> Jurisdiction Explorer
+                </a></li>
+            </ul>
+            <div>
+                 <a href="#" class="nav-item flex items-center p-3 rounded-lg" data-target="settings-view">
+                    <span class="mr-3 text-xl">⚙️</span> Settings
+                </a>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="flex-1 p-6 sm:p-8 lg:p-10 overflow-y-auto">
+            
+            <!-- Dashboard View -->
+            <div id="dashboard-view" class="view-content">
+                <h1 class="text-3xl font-bold mb-2">Welcome to LawHub</h1>
+                <p class="text-lg text-gray-400 mb-8">Your essential legal companion for international travel. How can we help you today?</p>
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="card p-6 rounded-xl cursor-pointer" data-target="chat-view">
+                        <div class="text-4xl mb-4">💬</div>
+                        <h3 class="text-xl font-bold mb-2 text-white">Ask a Legal Question</h3>
+                        <p class="text-gray-400">Get instant, multilingual answers from our AI-powered chatbot.</p>
+                    </div>
+                    <div class="card p-6 rounded-xl cursor-pointer" data-target="doc-view">
+                        <div class="text-4xl mb-4">📄</div>
+                        <h3 class="text-xl font-bold mb-2 text-white">Analyze a Document</h3>
+                        <p class="text-gray-400">Upload a PDF or DOCX to extract text, identify risks, and get summaries.</p>
+                    </div>
+                    <div class="card p-6 rounded-xl cursor-pointer" data-target="geo-view">
+                        <div class="text-4xl mb-4">🌍</div>
+                        <h3 class="text-xl font-bold mb-2 text-white">Explore Jurisdictions</h3>
+                        <p class="text-gray-400">Learn about local laws and regulations for different countries.</p>
+                    </div>
+                </div>
+
+                <div class="mt-12">
+                    <h2 class="text-2xl font-bold mb-4">Key Features</h2>
+                     <div class="space-y-4">
+                        <div class="bg-gray-800/50 p-4 rounded-lg flex items-center">
+                            <span class="text-2xl mr-4">🌐</span>
+                            <div>
+                                <h4 class="font-semibold">Multilingual Support</h4>
+                                <p class="text-gray-400 text-sm">Assistance in Arabic, Chinese, English, French, and Russian.</p>
+                            </div>
+                        </div>
+                        <div class="bg-gray-800/50 p-4 rounded-lg flex items-center">
+                            <span class="text-2xl mr-4">🛡️</span>
+                            <div>
+                                <h4 class="font-semibold">Risk Detection & Avoidance</h4>
+                                <p class="text-gray-400 text-sm">Proactively identifies scenarios that could lead to legal violations.</p>
+                            </div>
+                        </div>
+                         <div class="bg-gray-800/50 p-4 rounded-lg flex items-center">
+                            <span class="text-2xl mr-4">🚨</span>
+                            <div>
+                                <h4 class="font-semibold">Emergency Help Button</h4>
+                                <p class="text-gray-400 text-sm">Prominently placed for quick assistance in critical situations.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Legal Q&A View -->
+            <div id="chat-view" class="view-content hidden h-full flex flex-col">
+                <h1 class="text-3xl font-bold mb-2">Legal Q&A Chatbot</h1>
+                <p class="text-lg text-gray-400 mb-4">Ask any legal question. You can also upload a document or use your voice.</p>
+                <div id="chat-window" class="flex-1 bg-black/20 rounded-xl p-4 overflow-y-auto mb-4 space-y-4">
+                    <!-- Chat messages will be appended here -->
+                    <div class="flex justify-start">
+                        <div class="chat-bubble-bot p-3 rounded-lg max-w-lg">
+                            Hello! I am your AI legal assistant. How can I help you navigate the legal landscape today?
+                        </div>
+                    </div>
+                </div>
+                <div id="chat-status" class="text-center text-sm text-gray-400 h-5 mb-2"></div>
+                <div class="flex items-center space-x-2">
+                    <input type="text" id="chat-input" class="form-input flex-1 p-3 rounded-lg" placeholder="Type your question here...">
+                    <button id="send-btn" class="btn-primary p-3 rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                        ✨
+                    </button>
+                    <button id="voice-btn" class="btn-secondary p-3 rounded-lg">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path><path d="M19 10v2a7 7 0 0 1-14 0v-2"></path><line x1="12" y1="19" x2="12" y2="23"></line><line x1="8" y1="23" x2="16" y2="23"></line></svg>
+                    </button>
+                    <label for="file-upload" class="btn-secondary p-3 rounded-lg cursor-pointer">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path></svg>
+                    </label>
+                    <input id="file-upload" type="file" class="hidden" accept=".pdf,.docx">
+                </div>
+            </div>
+
+            <!-- Document Analysis View -->
+            <div id="doc-view" class="view-content hidden">
+                <h1 class="text-3xl font-bold mb-2">Document Analysis</h1>
+                <p class="text-lg text-gray-400 mb-8">Upload a legal document (PDF or DOCX) for OCR text extraction, summarization, and risk assessment.</p>
+                <div class="text-center">
+                    <button id="upload-doc-btn" class="btn-primary px-8 py-4 text-lg rounded-lg">
+                        Click to Upload Document ✨
+                    </button>
+                    <input id="doc-upload-input" type="file" class="hidden" accept=".pdf,.docx">
+                </div>
+                <div id="doc-analysis-results" class="mt-8 hidden">
+                    <h2 class="text-2xl font-bold mb-4">Analysis Report</h2>
+                    <div class="space-y-6">
+                        <div class="card p-6 rounded-xl">
+                            <h3 class="text-xl font-semibold mb-2 text-amber-400">Extracted Text</h3>
+                            <p id="extracted-text" class="text-gray-300 whitespace-pre-wrap h-48 overflow-y-auto">Loading extracted text...</p>
+                        </div>
+                        <div class="card p-6 rounded-xl">
+                            <h3 class="text-xl font-semibold mb-2 text-amber-400">Key Findings Summary</h3>
+                            <p id="key-findings" class="text-gray-300">Generating summary...</p>
+                        </div>
+                        <div class="card p-6 rounded-xl">
+                            <h3 class="text-xl font-semibold mb-2 text-amber-400">Potential Risk Assessment</h3>
+                            <ul id="risk-assessment" class="list-disc list-inside text-gray-300 space-y-1"><li>Analyzing risks...</li></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Jurisdiction Explorer View -->
+            <div id="geo-view" class="view-content hidden">
+                <h1 class="text-3xl font-bold mb-2">Jurisdiction Explorer</h1>
+                <p class="text-lg text-gray-400 mb-8">Select a country to view an overview of its key legal areas relevant to travelers.</p>
+                
+                <div class="mb-6">
+                    <label for="country-select" class="block mb-2 text-sm font-medium text-gray-400">Select Country:</label>
+                    <select id="country-select" class="form-select w-full max-w-md p-3 rounded-lg">
+                        <option value="canada">Canada</option>
+                        <option value="france">France</option>
+                        <option value="india">India</option>
+                        <option value="usa">United States</option>
+                        <option value="australia">Australia</option>
+                    </select>
+                </div>
+
+                <div id="jurisdiction-content" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    <div id="jurisdiction-text">
+                        <!-- Content updated by JS -->
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold mb-4 text-center">Common Legal Issues for Tourists</h3>
+                        <div class="chart-container">
+                            <canvas id="jurisdiction-chart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Settings View -->
+            <div id="settings-view" class="view-content hidden">
+                <h1 class="text-3xl font-bold mb-2">Settings</h1>
+                <p class="text-lg text-gray-400 mb-8">Customize your LawHub experience.</p>
+                <div class="max-w-md space-y-6">
+                    <div>
+                        <label for="language-select" class="block mb-2 text-sm font-medium text-gray-400">Application Language</label>
+                        <select id="language-select" class="form-select w-full p-3 rounded-lg">
+                            <option value="en">English</option>
+                            <option value="fr">Français (French)</option>
+                            <option value="zh">中文 (Chinese)</option>
+                            <option value="ar">العربية (Arabic)</option>
+                            <option value="ru">Русский (Russian)</option>
+                        </select>
+                    </div>
+                     <div>
+                        <h3 class="font-medium text-gray-400 mb-2">Data Management</h3>
+                        <button id="clear-storage-btn" class="btn-secondary px-4 py-2 rounded-lg">Clear Local Data</button>
+                        <p class="text-xs text-gray-500 mt-2">This will clear saved settings and temporary chat history from your browser.</p>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // --- Gemini API Key (Provided by user) ---
+    // The API key is set to an empty string to allow the Canvas environment to automatically
+    // inject a valid API key at runtime. This resolves the "API key not valid" error.
+    const GEMINI_API_KEY = ""; 
+
+    // --- DATA ---
+    const jurisdictionData = {
+        canada: {
+            name: "Canada",
+            content: `
+                <h2 class="text-2xl font-bold mb-4">Legal Overview: Canada</h2>
+                <div class="space-y-4 text-gray-300">
+                    <p>Canada operates under a common law system, except for Quebec which uses a civil law system for private law. Travelers should be aware of dual federal and provincial jurisdictions.</p>
+                    <p><strong>Criminal Law:</strong> The Criminal Code of Canada is federal, applying uniformly nationwide. Minor offenses, including traffic violations, are often handled under provincial statutes.</p>
+                    <p><strong>Tourist Information:</strong> All visitors require a valid passport. Depending on nationality, a visitor visa or an eTA (Electronic Travel Authorization) may be necessary. It's illegal to work without the proper permit.</p>
+                </div>
+            `,
+            chartData: [15, 25, 10, 30, 20]
+        },
+        france: {
+            name: "France",
+            content: `
+                <h2 class="text-2xl font-bold mb-4">Legal Overview: France</h2>
+                <div class="space-y-4 text-gray-300">
+                    <p>France uses a civil law system, where law is primarily derived from written statutes. Precedent is less important than in common law systems.</p>
+                    <p><strong>Public Order:</strong> France has strict laws regarding public demonstrations and secularism ('laïcité'). Religious symbols may be restricted in public buildings.</p>
+                    <p><strong>Tourist Information:</strong> As part of the Schengen Area, visa requirements are standardized for many non-EU visitors. Strict regulations apply to importing goods, especially alcohol and tobacco.</p>
+                </div>
+            `,
+            chartData: [20, 15, 25, 20, 20]
+        },
+        india: {
+            name: "India",
+            content: `
+                <h2 class="text-2xl font-bold mb-4">Legal Overview: India</h2>
+                <div class="space-y-4 text-gray-300">
+                    <p>India's legal system is a mix of common law, civil law, and customary law. The Constitution of India is the supreme legal document.</p>
+                    <p><strong>Protected Areas:</strong> Access to certain regions, particularly in the northeast and near borders, may require special permits for foreign nationals.</p>
+                    <p><strong>Tourist Information:</strong> e-Visas are available for many nationalities but have specific conditions. Be aware of local customs and dress codes, especially when visiting religious sites. Drug offenses carry severe penalties.</p>
+                </div>
+            `,
+            chartData: [10, 20, 15, 25, 30]
+        },
+        usa: {
+            name: "United States",
+            content: `
+                <h2 class="text-2xl font-bold mb-4">Legal Overview: United States</h2>
+                <div class="space-y-4 text-gray-300">
+                    <p>The U.S. has a federal common law system. Laws exist at federal, state, and local levels, and can vary significantly between states (e.g., traffic laws, alcohol consumption age).</p>
+                    <p><strong>Immigration:</strong> Immigration laws are federal and strictly enforced. All foreign visitors must enter with the correct visa or through the Visa Waiver Program (ESTA).</p>
+                    <p><strong>Civil Rights:</strong> You have the right to remain silent and the right to an attorney if questioned by law enforcement. It is advisable to state these rights clearly.</p>
+                </div>
+            `,
+            chartData: [25, 30, 10, 15, 20]
+        },
+        australia: {
+            name: "Australia",
+            content: `
+                <h2 class="text-2xl font-bold mb-4">Legal Overview: Australia</h2>
+                <div class="space-y-4 text-gray-300">
+                    <p>Australia follows a common law system. It has a federal structure with laws made at both the federal and state/territory levels.</p>
+                    <p><strong>Biosecurity:</strong> Australia has extremely strict biosecurity laws. You must declare all food, plant material, and animal products upon arrival. Failure to do so can result in large fines.</p>
+                    <p><strong>Tourist Information:</strong> All non-citizens need a visa to enter Australia. The Electronic Travel Authority (ETA) is available for many passport holders. Road rules can vary by state.</p>
+                </div>
+            `,
+            chartData: [10, 15, 35, 20, 20]
+        }
+    };
+
+    // Sample document text for analysis (in a real app, this would come from OCR)
+    const sampleDocumentText = `This Lease Agreement is made on July 25, 2025, between John Doe (Landlord) and Jane Smith (Tenant). The Tenant agrees to pay a monthly rent of $2,500, due on the first day of each month. A security deposit of $5,000 is required upon signing, to be held by the Landlord in a separate interest-bearing account. The lease term is for one (1) year, commencing on August 1, 2025, and ending on July 31, 2026. The Tenant shall not sublet or assign the premises without prior written consent from the Landlord, which consent shall not be unreasonably withheld. Any late payment will incur a penalty of 5% of the monthly rent for each week the payment is delayed. The Tenant is responsible for all utilities. The Landlord is responsible for major repairs to the structure of the building.`;
+    
+    // --- ELEMENTS ---
+    const navLinks = document.querySelectorAll('.nav-item');
+    const dashboardCards = document.querySelectorAll('.card[data-target]');
+    const views = document.querySelectorAll('.view-content');
+    const chatWindow = document.getElementById('chat-window');
+    const chatInput = document.getElementById('chat-input');
+    const sendBtn = document.getElementById('send-btn');
+    const voiceBtn = document.getElementById('voice-btn');
+    const fileUploadInput = document.getElementById('file-upload');
+    const chatStatus = document.getElementById('chat-status');
+    const uploadDocBtn = document.getElementById('upload-doc-btn');
+    const docUploadInput = document.getElementById('doc-upload-input');
+    const docAnalysisResults = document.getElementById('doc-analysis-results');
+    const extractedTextElem = document.getElementById('extracted-text');
+    const keyFindingsElem = document.getElementById('key-findings');
+    const riskAssessmentElem = document.getElementById('risk-assessment');
+    const countrySelect = document.getElementById('country-select');
+    const jurisdictionText = document.getElementById('jurisdiction-text');
+    const jurisdictionChartCanvas = document.getElementById('jurisdiction-chart');
+    const languageSelect = document.getElementById('language-select');
+    const clearStorageBtn = document.getElementById('clear-storage-btn');
+
+    let jurisdictionChart;
+    let chatHistory = [{ role: "user", parts: [{ text: "You are a helpful AI legal assistant. Respond concisely and professionally, focusing on legal information. Avoid giving personal advice or acting as a lawyer." }] }];
+
+    // --- NAVIGATION ---
+    function navigateTo(targetId) {
+        views.forEach(view => view.classList.add('hidden'));
+        document.getElementById(targetId).classList.remove('hidden');
+
+        navLinks.forEach(link => {
+            if (link.dataset.target === targetId) {
+                link.classList.add('active');
+            } else {
+                link.classList.remove('active');
+            }
+        });
+        
+        if (targetId === 'geo-view') {
+            updateJurisdictionContent(countrySelect.value);
+        }
+    }
+
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            navigateTo(link.dataset.target);
+        });
+    });
+    
+    dashboardCards.forEach(card => {
+        card.addEventListener('click', (e) => {
+            e.preventDefault();
+            navigateTo(card.dataset.target);
+        });
+    });
+    
+    // --- CHAT LOGIC (Gemini API Integration) ---
+    function addMessageToChat(message, sender) {
+        const bubble = document.createElement('div');
+        bubble.classList.add('flex', sender === 'user' ? 'justify-end' : 'justify-start');
+        
+        const content = document.createElement('div');
+        content.classList.add(sender === 'user' ? 'chat-bubble-user' : 'chat-bubble-bot', 'p-3', 'rounded-lg', 'max-w-lg');
+        content.textContent = message;
+        
+        bubble.appendChild(content);
+        chatWindow.appendChild(bubble);
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    }
+
+    async function handleSendMessage() {
+        const userMessage = chatInput.value.trim();
+        if (!userMessage) return;
+
+        addMessageToChat(userMessage, 'user');
+        chatInput.value = '';
+        chatStatus.textContent = "LawHub is typing...";
+
+        try {
+            // Send to Flask backend
+            const response = await fetch('/api/ask', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ question: userMessage })
+            });
+            const result = await response.json();
+            if (Array.isArray(result) && result.length > 0) {
+                let botResponse = '';
+                result.forEach((res, idx) => {
+                    botResponse += `Result #${idx+1} (Dataset: ${res.dataset}, Score: ${res.score}):\n`;
+                    botResponse += JSON.stringify(res.result, null, 2) + '\n\n';
+                });
+                addMessageToChat(botResponse, 'bot');
+            } else {
+                addMessageToChat("Sorry, I couldn't find a relevant legal answer.", 'bot');
+            }
+        } catch (error) {
+            addMessageToChat("An error occurred while connecting to the backend. Please try again later.", 'bot');
+            console.error("Error calling Flask API:", error);
+        } finally {
+            chatStatus.textContent = "";
+        }
+    }
+
+    sendBtn.addEventListener('click', handleSendMessage);
+    chatInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') {
+            handleSendMessage();
+        }
+    });
+
+    voiceBtn.addEventListener('click', () => {
+        chatStatus.textContent = "Listening... (Voice input not fully implemented in this demo)";
+        // In a real app, you would use Web Speech API here.
+        setTimeout(() => {
+            const simulatedVoiceInput = "What are the legal implications of a breach of contract?";
+            addMessageToChat(simulatedVoiceInput, 'user');
+            chatInput.value = simulatedVoiceInput; // Populate input for user to see
+            chatStatus.textContent = "Simulated voice input.";
+            // Automatically send the simulated voice input
+            handleSendMessage(); 
+        }, 2000);
+    });
+
+    fileUploadInput.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            chatStatus.textContent = `Uploading ${file.name}... (File content not processed by LLM in chat)`;
+            setTimeout(() => {
+                chatStatus.textContent = "";
+                addMessageToChat(`File "${file.name}" uploaded successfully. You can now ask questions related to its content (simulated).`, 'bot');
+            }, 2000);
+        }
+    });
+    
+    // --- DOCUMENT ANALYSIS LOGIC (Gemini API Integration) ---
+    uploadDocBtn.addEventListener('click', () => docUploadInput.click());
+    docUploadInput.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        docAnalysisResults.classList.remove('hidden');
+        extractedTextElem.textContent = "Extracting text...";
+        keyFindingsElem.textContent = "Generating summary...";
+        riskAssessmentElem.innerHTML = '<li>Analyzing risks...</li>';
+
+        // Simulate OCR text extraction (using predefined sample text for demo)
+        const extractedText = sampleDocumentText;
+        extractedTextElem.textContent = extractedText;
+
+        try {
+            // Generate Key Findings Summary
+            const summaryPrompt = `Summarize the key findings and main points from the following legal document text:\n\n"${extractedText}"`;
+            const summaryPayload = { contents: [{ role: "user", parts: [{ text: summaryPrompt }] }] };
+            const summaryApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+            
+            const summaryResponse = await fetch(summaryApiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(summaryPayload)
+            });
+            const summaryResult = await summaryResponse.json();
+            if (summaryResult.candidates && summaryResult.candidates.length > 0) {
+                keyFindingsElem.textContent = summaryResult.candidates[0].content.parts[0].text;
+            } else {
+                keyFindingsElem.textContent = "Failed to generate summary.";
+                console.error("Summary API response unexpected:", summaryResult);
+            }
+
+            // Generate Potential Risk Assessment
+            const riskPrompt = `Identify and list any potential legal risks, unfavorable clauses, or points of concern for a tenant based on the following lease agreement text. Format as a bulleted list:\n\n"${extractedText}"`;
+            const riskPayload = { contents: [{ role: "user", parts: [{ text: riskPrompt }] }] };
+            const riskApiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${GEMINI_API_KEY}`;
+
+            const riskResponse = await fetch(riskApiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(riskPayload)
+            });
+            const riskResult = await riskResponse.json();
+            if (riskResult.candidates && riskResult.candidates.length > 0) {
+                const risksText = riskResult.candidates[0].content.parts[0].text;
+                riskAssessmentElem.innerHTML = ''; // Clear previous loading text
+                risksText.split('\n').forEach(line => {
+                    if (line.trim().startsWith('*') || line.trim().startsWith('-')) { // Basic bullet point detection
+                        const li = document.createElement('li');
+                        li.textContent = line.trim().substring(1).trim(); // Remove bullet char
+                        riskAssessmentElem.appendChild(li);
+                    } else if (line.trim()) { // Add non-bullet lines as well
+                         const li = document.createElement('li');
+                        li.textContent = line.trim();
+                        riskAssessmentElem.appendChild(li);
+                    }
+                });
+            } else {
+                riskAssessmentElem.innerHTML = '<li>Failed to assess risks.</li>';
+                console.error("Risk API response unexpected:", riskResult);
+            }
+
+        } catch (error) {
+            extractedTextElem.textContent = "Error extracting text.";
+            keyFindingsElem.textContent = "Error generating summary.";
+            riskAssessmentElem.innerHTML = '<li>Error analyzing risks.</li>';
+            console.error("Error during document analysis API calls:", error);
+        }
+    });
+
+    // --- JURISDICTION EXPLORER LOGIC ---
+    function updateJurisdictionContent(country) {
+        const data = jurisdictionData[country];
+        if (data) {
+            jurisdictionText.innerHTML = data.content;
+            updateChart(data.chartData, data.name);
+        }
+    }
+
+    function initChart() {
+        const ctx = jurisdictionChartCanvas.getContext('2d');
+        jurisdictionChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Visa/Immigration', 'Traffic Violations', 'Customs/Biosecurity', 'Public Conduct', 'Theft/Scams'],
+                datasets: [{
+                    label: 'Reported Issues',
+                    data: [],
+                    backgroundColor: 'rgba(255, 153, 0, 0.6)',
+                    borderColor: 'rgba(255, 153, 0, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                indexAxis: 'y',
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: { color: 'white' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    },
+                    y: {
+                        ticks: { color: 'white' },
+                        grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        backgroundColor: '#000',
+                        titleColor: '#FF9900',
+                        bodyColor: '#FFF'
+                    }
+                }
+            }
+        });
+    }
+
+    function updateChart(data, countryName) {
+        if(jurisdictionChart) {
+            jurisdictionChart.data.datasets[0].data = data;
+            jurisdictionChart.data.datasets[0].label = `Reported Issues in ${countryName}`;
+            jurisdictionChart.update();
+        }
+    }
+    
+    countrySelect.addEventListener('change', (e) => {
+        updateJurisdictionContent(e.target.value);
+    });
+    
+    // --- SETTINGS LOGIC ---
+    languageSelect.addEventListener('change', (e) => {
+        localStorage.setItem('lawhub_language', e.target.value);
+        // In a real app, you would reload UI strings here.
+        // For this simulation, we just show a message.
+        console.log(`Language preference saved to: ${e.target.value}. (This is a simulation)`);
+    });
+
+    clearStorageBtn.addEventListener('click', () => {
+        localStorage.removeItem('lawhub_language');
+        alert('Local data cleared.'); // Using alert for simplicity in demo
+        languageSelect.value = 'en';
+    });
+
+    function loadSettings() {
+        const savedLang = localStorage.getItem('lawhub_language');
+        if (savedLang) {
+            languageSelect.value = savedLang;
+        }
+    }
+
+    // --- INITIALIZATION ---
+    initChart();
+    navigateTo('dashboard-view');
+    loadSettings();
+});
+</script>
+</body>
+</html>
